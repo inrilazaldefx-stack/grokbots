@@ -1,0 +1,17 @@
+.lock{position:fixed;inset:0;z-index:100;background:radial-gradient(120% 80% at 50% 0%,#141b2b 0%,#07090d 60%);display:flex;align-items:center;justify-content:center;padding:24px}
+.lock[hidden]{display:none}
+.lock .card{width:100%;max-width:360px;text-align:center}
+.lock .crewdots{display:flex;justify-content:center;gap:6px;margin-bottom:18px}
+.lock .crewdots span{width:14px;height:14px;border-radius:50%}
+.lock .crewdots span:nth-child(1){background:#f5c451}.lock .crewdots span:nth-child(2){background:#60a5fa}.lock .crewdots span:nth-child(3){background:#a78bfa}
+.lock .crewdots span:nth-child(4){background:#2dd4bf}.lock .crewdots span:nth-child(5){background:#fb7185}.lock .crewdots span:nth-child(6){background:#4ade80}.lock .crewdots span:nth-child(7){background:#fb923c}
+.lock h1{font-size:28px;margin:0 0 6px;letter-spacing:-.02em}
+.lock p{color:#8b93a7;margin:0 0 22px;font-size:14px;line-height:1.45}
+.lock input[type=password]{width:100%;box-sizing:border-box;padding:14px 16px;border-radius:14px;border:1px solid #263047;background:#0d121c;color:#e8ecf4;font-size:17px;outline:none}
+.lock input[type=password]:focus{border-color:#f5c451}
+.lock label{display:flex;align-items:center;gap:8px;justify-content:center;margin:14px 0;color:#aab2c5;font-size:14px}
+.lock button{width:100%;padding:14px;border:0;border-radius:14px;background:linear-gradient(150deg,#f5c451,#f59e0b);color:#111;font-weight:700;font-size:16px}
+.lock button:disabled{opacity:.6}
+.lock .msg{min-height:20px;margin-top:14px;color:#fbbf24;font-size:13px}
+.lock .fine{margin-top:22px;color:#5d6680;font-size:12px}
+.lockbtn{display:block;margin:18px auto 0;background:none;border:1px solid #263047;color:#8b93a7;border-radius:10px;padding:8px 14px;font-size:13px}

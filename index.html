@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://ntfy.sh; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07090d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grok Bots">
+<title>Grok Bots</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="lock.css">
+<script src="config.js"></script>
+<script src="gbcrypto.js"></script>
+<script src="relay.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<div class="lock" id="lock" hidden>
+  <form class="card" id="lockForm" autocomplete="off">
+    <div class="crewdots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <h1>Grok Bots</h1>
+    <p>Enter your app passcode. It never leaves this phone: it unlocks the encrypted link to your bots.</p>
+    <input type="password" id="lockPass" placeholder="Passcode" autocomplete="current-password" aria-label="Passcode">
+    <label><input type="checkbox" id="lockRemember" checked> Remember this phone</label>
+    <button type="submit" id="lockGo">Unlock</button>
+    <div class="msg" id="lockMsg" role="status"></div>
+    <div class="fine">PAPER only · no real money · end-to-end encrypted</div>
+  </form>
+</div>
+
+<header class="top">
+  <div class="brand">
+    <div class="crew" id="crew" aria-label="The seven bots"></div>
+    <div class="titles">
+      <div class="title">Grok Bots</div>
+      <div class="sub">Solana memes · paper · 7 bots</div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip mode" title="Paper trading only. There is no live-money switch.">PAPER</span>
+    <span class="chip cd" id="cdChip">idle</span>
+    <span class="chip conn" id="conn">…</span>
+  </div>
+</header>
+
+<section class="runcard" id="runCard">
+  <div class="row between">
+    <div>
+      <div class="label">1-hour run · every bot does its full job, then everyone stands down</div>
+      <div class="state" id="runState">—</div>
+    </div>
+    <div class="clock num" id="runClock">60:00</div>
+  </div>
+  <div class="bar runbar"><i id="runBar"></i></div>
+  <div class="meta" id="runMeta"></div>
+  <div class="runbtns">
+    <button class="go" id="startBtn" type="button">Start 1-hour run</button>
+    <button class="stop" id="stopBtn" type="button">Stop now</button>
+  </div>
+  <div class="runmsg" id="runMsg" hidden></div>
+</section>
+<div class="sitrep" id="sitrep"></div>
+
+<main>
+<!-- COMMAND -->
+<section class="view" id="v-command">
+  <div class="card hero">
+    <div class="row between"><span class="label">Paper equity</span><span class="label" id="startLbl"></span></div>
+    <div class="equity" id="equity">—</div>
+    <div class="row between"><span id="eqDelta" class="delta"></span><span class="muted small" id="eqNote"></span></div>
+    <div class="chartwrap">
+      <svg class="chart" id="chart" viewBox="0 0 320 120" preserveAspectRatio="none" aria-label="Equity chart"></svg>
+      <div class="chartlbl" id="chartLbl"></div>
+    </div>
+    <div class="row between chartfoot"><span class="small muted" id="chartNote"></span>
+      <div class="seg" id="range"><button data-r="1h">1H</button><button data-r="1d">1D</button><button data-r="1w">1W</button><button data-r="all" class="on">ALL</button></div></div>
+    <div class="goal" id="goal">
+      <div class="row between"><span class="label">Mission: 2× the stack</span><span class="small" id="goalTxt"></span></div>
+      <div class="bar goalbar"><i id="goalBar"></i></div>
+      <div class="row between small muted"><span id="goalFrom"></span><span id="goalTo"></span></div>
+    </div>
+    <div class="gauges">
+      <div class="gauge"><div class="row between"><span class="label">Today vs daily loss cap</span><span id="dlTxt" class="small"></span></div><div class="bar"><i id="dlBar"></i></div></div>
+      <div class="gauge"><div class="row between"><span class="label">Drawdown vs halt</span><span id="ddTxt" class="small"></span></div><div class="bar"><i id="ddBar"></i></div></div>
+    </div>
+  </div>
+  <div class="tiles" id="tiles"></div>
+  <div class="card"><div class="row between"><div class="h">Logger</div><span class="small muted" id="miniFeedMeta"></span></div><ol class="logfeed" id="miniFeed"></ol></div>
+  <div class="card"><div class="row between"><div class="h">Why they died</div><span class="small muted" id="miniKillMeta"></span></div><div class="killgrid" id="miniKills"></div></div>
+  <div class="card"><div class="h">Funnel</div><div id="funnel"></div></div>
+  <div class="card" id="statsCard"><div class="h">Scorecard</div><div id="stats"></div></div>
+  <div class="card"><div class="row between"><div class="h">Open positions</div><span class="muted small" id="openMeta"></span></div><div id="openPos"></div></div>
+  <div class="card"><div class="row between"><div class="h">Coins on the board</div><span class="muted small">tap for the full decision trail</span></div><div id="coins"></div></div>
+</section>
+
+<!-- DESK -->
+<section class="view" id="v-desk" hidden>
+  <div class="card"><div class="row between"><div class="h">The Desk · 7 bots</div><span class="muted small" id="deskMeta"></span></div><div id="desk"></div></div>
+  <p class="foot">Service state comes from the run supervisor (<code>/workspace/shared/control/services.json</code>). Activity comes only from each bot's own files. A gray dot means idle.</p>
+</section>
+
+<!-- FEED -->
+<section class="view" id="v-feed" hidden>
+  <div class="card"><div class="row between"><div class="h">Live feed</div><div class="seg" id="feedFilter"><button data-f="all" class="on">All</button><button data-f="security">Security</button><button data-f="decision">Verdicts</button><button data-f="execution">Fills</button></div></div><ol class="feed" id="feed"></ol></div>
+</section>
+
+<!-- KILLS -->
+<section class="view" id="v-kills" hidden>
+  <div class="card"><div class="h">Why they died</div><p class="muted small">Counts of coins stopped, grouped by reason. Numbers inside reasons are folded into # so variants stack.</p><div id="kills"></div></div>
+</section>
+
+<!-- TRADES -->
+<section class="view" id="v-trades" hidden>
+  <div class="card"><div class="h">Trades</div><div id="trades"></div></div>
+</section>
+
+<!-- RUNS -->
+<section class="view" id="v-runs" hidden>
+  <div class="card"><div class="h">Run reports</div><p class="muted small">One card per 1-hour run after it ends. Numbers come from the shared store for that run's window.</p><div id="runs"></div></div>
+</section>
+
+<!-- RULES -->
+<section class="view" id="v-rules" hidden>
+  <div class="card"><div class="row between"><div class="h">Rules of engagement</div><span class="chip ro">read-only</span></div><p class="muted small">From <code>/workspace/shared/config/run_config.v1.yaml</code>. Changing any value needs your sign-off, and loosening one only takes effect 24 hours later.</p><div id="rules"></div></div>
+  <div class="card"><div class="h">Data sources</div><div id="sources"></div></div>
+  <button type="button" id="lockBtn" class="lockbtn">Lock and forget this phone</button>
+</section>
+</main>
+
+<nav class="tabs" id="tabs">
+  <button data-v="command" class="on"><svg viewBox="0 0 24 24"><path d="M3 12l9-8 9 8M5 10v10h14V10"/></svg>Command</button>
+  <button data-v="desk"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c1-4 4-6 6-6s5 2 6 6M12 20c1-4 2-6 4-6s5 2 6 6"/></svg>Desk</button>
+  <button data-v="feed"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Feed</button>
+  <button data-v="kills"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="5"/></svg>Kills</button>
+  <button data-v="trades"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>Trades</button>
+  <button data-v="runs"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M10 2h4"/></svg>Runs</button>
+  <button data-v="rules"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z M9 9h6M9 13h6M9 17h4"/></svg>Rules</button>
+</nav>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-bg" data-close></div>
+  <div class="sheet-body" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="grab"></div>
+    <div class="row between"><div class="h" id="sheetTitle">Decision trail</div><button class="x" data-close aria-label="Close">×</button></div>
+    <div id="sheetContent"></div>
+  </div>
+</div>
+<div class="confirm" id="confirm" hidden>
+  <div class="confirm-body"><div class="h" id="cTitle"></div><p id="cText" class="muted"></p><div class="row gap"><button id="cNo" class="btn ghost">Cancel</button><button id="cYes" class="btn">Confirm</button></div></div>
+</div>
+</body>
+</html>
