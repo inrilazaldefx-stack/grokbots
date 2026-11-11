@@ -1,5 +1,5 @@
 /* Grok Bots phone shell. Caches the app files only; relay data is never cached. */
-const SHELL = "gb-pwa-b4f817d121";
+const SHELL = "gb-pwa-c4987589ce";
 const ASSETS = ["./", "index.html", "app.css", "lock.css", "app.js", "config.js", "gbcrypto.js", "relay.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(SHELL).then(c => c.addAll(ASSETS)).catch(() => {}).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== SHELL).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

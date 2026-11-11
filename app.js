@@ -54,7 +54,7 @@ function setConn(ok) {
 }
 
 function render() {
-  renderCrew(); renderRun(); renderSitrep(); renderCommand(); renderMini(); renderDesk(); renderFeed(); renderKills(); renderTrades(); renderRuns(); renderRules();
+  renderCrew(); renderRun(); renderSitrep(); renderCommand(); renderMini(); renderDesk(); renderBots(); renderFeed(); renderKills(); renderTrades(); renderRuns(); renderRules();
   styleDyn(document);
 }
 // CSP forbids inline style attributes, so dynamic widths/colours are applied through the CSSOM.
@@ -244,6 +244,45 @@ function renderDesk() {
   }).join("") + (sup.exit_only_note ? `<div class="note big">${esc(sup.exit_only_note)}</div>` : "");
 }
 
+// ---------------------------------------------------------------- Bots monitor (S.activity, built read-only on the box)
+let actFilter = "all";
+const BST = {running: "RUNNING", external: "ALWAYS-ON", idle: "IDLE", disabled: "DISABLED", crashed: "CRASHED", down: "DOWN"};
+const whenET = s => { if (!s) return ""; const d = new Date(s), n = new Date();
+  const same = d.toLocaleDateString("en-US", tz) === n.toLocaleDateString("en-US", tz);
+  return same ? tET(s) : d.toLocaleString("en-US", {...tz, month:"short", day:"numeric"}) + " " + tET(s); };
+function renderBots() {
+  const A = S && S.activity; const el = $("#bots"); if (!el) return;
+  if (!A || !A.bots) { el.innerHTML = `<div class="empty">No bot activity in this snapshot yet.</div>`; $("#actFeed").innerHTML = ""; return; }
+  if (A.error) { el.innerHTML = `<div class="empty">The box couldn't build the bot view (${esc(A.error)}). The other tabs still work.</div>`; }
+  const live = A.bots.filter(b => b.status === "running" || b.status === "external").length;
+  $("#botsMeta").textContent = `${live}/${A.bots.length} up${A.supervisor_alive ? "" : " · supervisor offline"}`;
+  const rs = S.run_state || {}, left = secsLeft(), eq = A.equity || {};
+  const pnl = (typeof eq.equity_usd === "number" && typeof eq.start_usd === "number") ? eq.equity_usd - eq.start_usd : null;
+  $("#botsRun").innerHTML = [
+    `<span class="pill ${left ? "good" : ""}">${left ? `Run live · ${mmss(left)} left` : "Paused"}</span>`,
+    `<span class="pill">Paper equity ${esc(usd(eq.equity_usd))}${pnl != null ? ` (${sgn(pnl)}${esc(usd(pnl))})` : ""}</span>`,
+    `<span class="pill">${eq.open_count || 0} open</span>`,
+    A.relay_state ? `<span class="pill ${A.relay_state === "external" ? "good" : "bad"}">Phone relay ${A.relay_state === "external" ? "up" : "down"}</span>` : ""].join("");
+  if (!A.error) el.innerHTML = A.bots.map(b => {
+    const acts = (b.latest || []).map(e => `<li class="${esc(e.tone)}"><span class="t">${esc(whenET(e.ts))}</span><span>${esc(e.text)}</span></li>`).join("");
+    const ct = Object.entries(b.counters || {}).map(([k, v]) => `<span class="pill">${esc(k.replace(/_/g, " "))} ${esc(v)}</span>`).join("");
+    const sv = (b.services || []).map(x => `<div class="svc"><span class="sdot ${esc(x.state)}"></span><span class="sn">${esc(x.name)}</span><span class="pill ${SVC_TONE[x.state] || ""}">${esc(svcLabel(x))}</span></div>`).join("");
+    let extra = "";
+    if (b.exit_monitor) extra += `<div class="small muted">Exit monitor tick ${esc(ago(b.exit_monitor.heartbeat_at))} · ${esc(b.exit_monitor.open_positions ?? 0)} open position(s)</div>`;
+    if (b.ingest) extra += `<div class="small ${b.ingest.healthy ? "muted" : "warnTxt"}">Journal ingest ${b.ingest.healthy ? "healthy" : "NOT healthy"} · heartbeat ${esc(ago(b.ingest.heartbeat_at))}${b.ingest.violations ? ` · ${esc(b.ingest.violations)} violations` : ""}</div>`;
+    return `<div class="bcard">${avatar(b.id, (b.status === "running" || b.status === "external") ? "live" : "idle", "tile")}<div>
+      <div class="row between"><span class="nm">${esc(b.name)}</span><span class="bst ${esc(b.status)}">${esc(BST[b.status] || b.status)}</span></div>
+      ${b.status_note ? `<div class="why2">${esc(b.status_note)}</div>` : ""}
+      <div class="svcs">${sv}</div>${extra}
+      ${acts ? `<ol class="acts">${acts}</ol>` : `<div class="small muted">No actions yet.</div>`}
+      ${ct ? `<div class="ct">${ct}</div>` : ""}</div></div>`;
+  }).join("");
+  const items = (A.feed || []).filter(e => actFilter === "all" || e.bot === actFilter);
+  $("#actFeed").innerHTML = items.length ? items.map(e => { const bb = BOTC[e.bot] || BOTC.control;
+    return `<li class="${esc(e.tone)}"><span class="t">${esc(whenET(e.ts))}</span><span><span class="who">${esc(bb[1].toUpperCase())}</span>${esc(e.text)}</span></li>`; }).join("")
+    : `<li><span></span><span class="muted">Nothing yet for this bot.</span></li>`;
+}
+
 function renderMini() {
   const items = S.feed.slice(0, 8);
   $("#miniFeedMeta").textContent = S.feed.length ? `${S.feed.length} events` : "";
@@ -399,13 +438,15 @@ document.addEventListener("click", e => {
   const f = e.target.closest("#feedFilter button");
   const rg = e.target.closest("#range button");
   if (rg) { range = rg.dataset.r; document.querySelectorAll("#range button").forEach(b => b.classList.toggle("on", b === rg)); return renderChart(S.portfolio); }
+  const af = e.target.closest("#actFilter button");
+  if (af) { actFilter = af.dataset.a; document.querySelectorAll("#actFilter button").forEach(b => b.classList.toggle("on", b === af)); return renderBots(); }
   if (f) { feedFilter = f.dataset.f; document.querySelectorAll("#feedFilter button").forEach(b => b.classList.toggle("on", b === f)); return renderFeed(); }
   if (e.target.closest("[data-close]")) { $("#sheet").hidden = true; return; }
   const c = e.target.closest("[data-cid]"); if (c) return openTrail(c.dataset.cid, c.dataset.ev);
 });
 $("#startBtn").addEventListener("click", startRun);
 $("#stopBtn").addEventListener("click", stopRun);
-setInterval(() => { if (S) { if (T) setConn(true); renderRun(); if (view === "desk" && secsLeft()) { renderDesk(); styleDyn($("#desk")); } } }, 1000);
+setInterval(() => { if (S) { if (T) setConn(true); renderRun(); if (view === "desk" && secsLeft()) { renderDesk(); styleDyn($("#desk")); } if (view === "bots" && secsLeft()) { renderBots(); styleDyn($("#bots")); } } }, 1000);
 
 let timer;
 function loop() { clearTimeout(timer); if (!document.hidden) refresh(); timer = setTimeout(loop, 5000); }

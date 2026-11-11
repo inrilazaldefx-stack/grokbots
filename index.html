@@ -99,6 +99,17 @@
   <div class="card"><div class="row between"><div class="h">Coins on the board</div><span class="muted small">tap for the full decision trail</span></div><div id="coins"></div></div>
 </section>
 
+<!-- BOTS (live activity monitor) -->
+<section class="view" id="v-bots" hidden>
+  <div class="card"><div class="row between"><div class="h">Bots · what everyone is doing</div><span class="muted small" id="botsMeta"></span></div>
+    <div class="bstrip" id="botsRun"></div>
+    <div id="bots"></div></div>
+  <div class="card"><div class="row between"><div class="h">Activity · newest first</div><span class="muted small">times in ET</span></div>
+    <div class="seg" id="actFilter"><button data-a="all" class="on">All</button><button data-a="general">General</button><button data-a="x_scout">X Scout</button><button data-a="security">Security</button><button data-a="executor_governor">Executer</button><button data-a="journal">Logger</button></div>
+    <ol class="feed actfeed" id="actFeed"></ol></div>
+  <p class="foot">Read-only. Built from each bot's own files (structured fields only, never raw logs). Paper money only.</p>
+</section>
+
 <!-- DESK -->
 <section class="view" id="v-desk" hidden>
   <div class="card"><div class="row between"><div class="h">The Desk · 7 bots</div><span class="muted small" id="deskMeta"></span></div><div id="desk"></div></div>
@@ -135,6 +146,7 @@
 
 <nav class="tabs" id="tabs">
   <button data-v="command" class="on"><svg viewBox="0 0 24 24"><path d="M3 12l9-8 9 8M5 10v10h14V10"/></svg>Command</button>
+  <button data-v="bots"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9.5 16h5"/></svg>Bots</button>
   <button data-v="desk"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c1-4 4-6 6-6s5 2 6 6M12 20c1-4 2-6 4-6s5 2 6 6"/></svg>Desk</button>
   <button data-v="feed"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Feed</button>
   <button data-v="kills"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="5"/></svg>Kills</button>

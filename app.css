@@ -180,7 +180,31 @@ code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
 .why2{font-size:11.5px;color:var(--amber);margin:0 0 3px 18px}
 .note.big{margin-top:10px;font-size:12px;padding:10px;border:1px dashed #f0b44c55;border-radius:10px}
 .runrep{padding:12px 0;border-top:1px solid var(--line)}.runrep:first-child{border-top:0}
-.tabs{grid-template-columns:repeat(7,1fr)}
-.tabs button{font-size:10px}
+.tabs{grid-template-columns:repeat(8,1fr)}
+.tabs button{font-size:9.5px}
+.tabs svg{width:20px;height:20px}
 .chartfoot{gap:8px}.chartfoot .seg{flex-wrap:nowrap;flex-shrink:0}.chartfoot .small{min-width:0}
 .runrep .ct{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.runrep .pill{white-space:normal}
+
+/* Bots monitor */
+.bstrip{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.bcard{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.bcard:first-of-type{border-top:0}
+.bcard .nm{font-weight:700}
+.bcard .acts{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:3px}
+.bcard .acts li{display:grid;grid-template-columns:62px 1fr;gap:6px;font-size:12.5px}
+.bcard .acts li .t{color:var(--dim);font-size:11.5px;font-variant-numeric:tabular-nums}
+.bcard .acts li.good span+span{color:var(--green)}.bcard .acts li.bad span+span{color:var(--red)}.bcard .acts li.warn span+span{color:var(--amber)}
+.bcard .ct{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.bst{font-size:11px;padding:3px 8px;border-radius:99px;font-weight:700;letter-spacing:.02em}
+.bst.running,.bst.external{background:#4fd69c1a;color:var(--green)}.bst.idle{background:#1a2127;color:var(--muted)}
+.bst.disabled{background:transparent;color:var(--dim);border:1px solid #2a333a}.bst.crashed,.bst.down{background:#ff6b5e1a;color:var(--red)}
+#actFilter{margin:8px 0 0;flex-wrap:wrap}
+.actfeed li{grid-template-columns:70px 1fr}
+.bcard>div,.bcard .acts li span,.actfeed li span{min-width:0;overflow-wrap:anywhere}
+.bcard .acts li{grid-template-columns:70px minmax(0,1fr)}.actfeed li{grid-template-columns:74px minmax(0,1fr)}
+#v-bots{overflow-x:hidden}
+.feed li>span,.kc span,.kr span,.ln{min-width:0;overflow-wrap:anywhere}
+.feed li{grid-template-columns:52px minmax(0,1fr)}
+.logfeed li{grid-template-columns:4px 62px minmax(0,1fr)}.logfeed li>span{min-width:0;overflow-wrap:anywhere}
+.killgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.kc,.kr{min-width:0}
